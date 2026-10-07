@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Reaproveita Brasília: plataforma para encontrar e divulgar alimentos excedentes em Brasília.">
+  <meta name="theme-color" content="#16a34a">
+  <meta property="og:title" content="Reaproveita Brasília">
+  <meta property="og:description" content="Conectando alimentos excedentes a quem pode reaproveitá-los.">
+  <title>Reaproveita Brasília | Combate ao desperdício</title>
+
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIINfQ3xY3z8s7dQw8y4f5Q5W6W7Q0FQw7M="
+        crossorigin="">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <header class="header">
+    <div class="container header__content">
+      <a class="brand" href="#inicio" aria-label="Reaproveita Brasília - início">
+        <span class="brand__icon">♻</span>
+        <span>
+          <strong>Reaproveita</strong>
+          <small>Brasília</small>
+        </span>
+      </a>
+
+      <button class="header__menu" id="menuButton" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="nav" id="mainNav" aria-label="Navegação principal">
+        <a href="#inicio">Início</a>
+        <a href="#mapa">Mapa</a>
+        <a href="#ofertas">Ofertas</a>
+        <button class="button button--small" id="openOfferButton">+ Cadastrar oferta</button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div class="container hero__content">
+        <div class="hero__text">
+          <span class="badge">♻️ Tecnologia contra o desperdício</span>
+          <h1>Comida que sobra pode <span>fazer a diferença.</span></h1>
+          <p>
+            Encontre alimentos excedentes em Brasília e conecte estabelecimentos
+            a pessoas e instituições que podem reaproveitá-los.
+          </p>
+
+          <div class="hero__actions">
+            <a class="button" href="#mapa">Explorar mapa</a>
+            <button class="button button--outline" id="openHeroOffer">Doar alimentos</button>
+          </div>
+
+          <div class="hero__stats" aria-label="Indicadores do projeto">
+            <div><strong id="statOffers">0</strong><span>ofertas ativas</span></div>
+            <div><strong id="statPlaces">0</strong><span>pontos no mapa</span></div>
+            <div><strong id="statItems">0</strong><span>itens disponíveis</span></div>
+          </div>
+        </div>
+
+        <div class="hero__card">
+          <div class="hero__card-top">
+            <span class="live-dot"></span>
+            <span>Ofertas próximas</span>
+          </div>
+          <div id="heroOffers"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--map" id="mapa">
+      <div class="container">
+        <div class="section__heading">
+          <div>
+            <span class="eyebrow">Localização</span>
+            <h2>Encontre no mapa</h2>
+            <p>Pesquise uma região de Brasília ou filtre as ofertas disponíveis.</p>
+          </div>
+          <button class="button button--ghost" id="locateButton">⌖ Minha localização</button>
+        </div>
+
+        <div class="map-tools">
+          <label class="search-box">
+            <span>⌕</span>
+            <input id="searchInput" type="search" placeholder="Pesquisar região ou endereço..." autocomplete="off">
+            <button id="clearSearch" type="button" aria-label="Limpar pesquisa">×</button>
+          </label>
+
+          <label class="select-box">
+            <span>Categoria</span>
+            <select id="categoryFilter">
+              <option value="todos">Todas</option>
+              <option value="padaria">Padarias</option>
+              <option value="restaurante">Restaurantes</option>
+              <option value="mercado">Mercados</option>
+              <option value="instituicao">Instituições</option>
+            </select>
+          </label>
+
+          <label class="select-box">
+            <span>Status</span>
+            <select id="statusFilter">
+              <option value="todos">Todos</option>
+              <option value="disponivel">Disponíveis</option>
+              <option value="urgente">Retirada urgente</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="map-layout">
+          <div id="map" class="map" aria-label="Mapa interativo de Brasília"></div>
+          <aside class="offer-list" aria-label="Lista de ofertas">
+            <div class="offer-list__header">
+              <strong id="resultCount">0 ofertas</strong>
+              <button id="resetFilters" class="text-button">Limpar filtros</button>
+            </div>
+            <div id="offerList"></div>
+          </aside>
+        </div>
+
+        <p class="map-attribution">
+          Mapa por <a href="https://www.openstreetmap.org/" target="_blank" rel="noopener">OpenStreetMap</a>
+          e biblioteca <a href="https://leafletjs.com/" target="_blank" rel="noopener">Leaflet</a>.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="ofertas">
+      <div class="container">
+        <div class="section__heading">
+          <div>
+            <span class="eyebrow">Oportunidades</span>
+            <h2>Ofertas disponíveis</h2>
+            <p>Alimentos cadastrados recentemente pela comunidade.</p>
+          </div>
+        </div>
+        <div class="cards" id="offerCards"></div>
+      </div>
+    </section>
+
+    <section class="how-it-works">
+      <div class="container">
+        <div class="section__heading section__heading--center">
+          <span class="eyebrow">Como funciona</span>
+          <h2>Do excedente ao reaproveitamento</h2>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span>01</span>
+            <div class="step__icon">🏪</div>
+            <h3>Cadastre</h3>
+            <p>O estabelecimento informa o alimento excedente e o horário de retirada.</p>
+          </article>
+          <article class="step">
+            <span>02</span>
+            <div class="step__icon">🗺️</div>
+            <h3>Localize</h3>
+            <p>As ofertas aparecem no mapa para facilitar a busca por região.</p>
+          </article>
+          <article class="step">
+            <span>03</span>
+            <div class="step__icon">🤝</div>
+            <h3>Reaproveite</h3>
+            <p>Uma pessoa ou instituição demonstra interesse e combina a retirada.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__content">
+      <div>
+        <div class="brand brand--footer">
+          <span class="brand__icon">♻</span>
+          <span><strong>Reaproveita</strong><small>Brasília</small></span>
+        </div>
+        <p>Um projeto acadêmico para reduzir o desperdício de alimentos.</p>
+      </div>
+      <div class="footer__tag">Projeto desenvolvido com Scrum • 2026</div>
+    </div>
+  </footer>
+
+  <div class="modal" id="offerModal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal__backdrop" data-close-modal></div>
+    <div class="modal__content">
+      <button class="modal__close" id="closeModal" aria-label="Fechar">×</button>
+      <span class="eyebrow">Nova oferta</span>
+      <h2 id="modalTitle">Cadastrar alimento</h2>
+      <p class="modal__intro">Preencha os dados para simular o cadastro de uma nova oferta.</p>
+
+      <form id="offerForm">
+        <div class="form-grid">
+          <label>Nome do alimento
+            <input name="food" required placeholder="Ex.: 20 pães">
+          </label>
+          <label>Categoria
+            <select name="category" required>
+              <option value="padaria">Padaria</option>
+              <option value="restaurante">Restaurante</option>
+              <option value="mercado">Mercado</option>
+              <option value="instituicao">Instituição</option>
+            </select>
+          </label>
+          <label>Estabelecimento
+            <input name="place" required placeholder="Ex.: Padaria Brasília">
+          </label>
+          <label>Região
+            <input name="region" required placeholder="Ex.: Asa Norte">
+          </label>
+          <label>Quantidade
+            <input name="quantity" type="number" min="1" required placeholder="20">
+          </label>
+          <label>Retirada até
+            <input name="time" type="time" required>
+          </label>
+          <label class="form-grid__full">Endereço
+            <input name="address" required placeholder="Ex.: SQN 204, Brasília - DF">
+          </label>
+        </div>
+
+        <div class="form-message" id="formMessage"></div>
+        <button class="button button--full" type="submit">Cadastrar oferta</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="js/script.js"></script>
+</body>
+</html>
